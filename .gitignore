@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Rust build artifacts
+src-tauri/target/
+
+# Tauri generated
+src-tauri/gen/
+
+# Code signing — never commit the private key
+signing/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

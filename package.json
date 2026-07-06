@@ -1,0 +1,14 @@
+{
+  "name": "youtube-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "dist": "powershell -ExecutionPolicy Bypass -File .\\build-installer.ps1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}
