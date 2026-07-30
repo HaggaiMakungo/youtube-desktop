@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-tab-toggle-theater"
+description = "Enables the tab_toggle_theater command without any pre-configured scope."
+commands.allow = ["tab_toggle_theater"]
+
+[[permission]]
+identifier = "deny-tab-toggle-theater"
+description = "Denies the tab_toggle_theater command without any pre-configured scope."
+commands.deny = ["tab_toggle_theater"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-library-panel-toggle"
+description = "Enables the library_panel_toggle command without any pre-configured scope."
+commands.allow = ["library_panel_toggle"]
+
+[[permission]]
+identifier = "deny-library-panel-toggle"
+description = "Denies the library_panel_toggle command without any pre-configured scope."
+commands.deny = ["library_panel_toggle"]

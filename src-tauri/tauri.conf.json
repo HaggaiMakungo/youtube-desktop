@@ -13,13 +13,13 @@
       {
         "label": "main",
         "title": "YouTube",
-        "url": "https://www.youtube.com/",
+        "url": "index.html",
         "width": 1280,
         "height": 800,
         "resizable": true,
         "fullscreen": false,
         "alwaysOnTop": false,
-        "decorations": true,
+        "decorations": false,
         "transparent": true
       }
     ],

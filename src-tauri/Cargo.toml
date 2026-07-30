@@ -8,7 +8,7 @@ description = "Desktop wrapper for YouTube"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["tray-icon", "image-ico", "image-png"] }
+tauri = { version = "2", features = ["tray-icon", "image-ico", "image-png", "unstable"] }
 tauri-plugin-global-shortcut = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

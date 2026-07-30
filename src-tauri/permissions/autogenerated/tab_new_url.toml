@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-tab-new-url"
+description = "Enables the tab_new_url command without any pre-configured scope."
+commands.allow = ["tab_new_url"]
+
+[[permission]]
+identifier = "deny-tab-new-url"
+description = "Denies the tab_new_url command without any pre-configured scope."
+commands.deny = ["tab_new_url"]

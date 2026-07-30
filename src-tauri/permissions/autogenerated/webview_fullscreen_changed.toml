@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-webview-fullscreen-changed"
+description = "Enables the webview_fullscreen_changed command without any pre-configured scope."
+commands.allow = ["webview_fullscreen_changed"]
+
+[[permission]]
+identifier = "deny-webview-fullscreen-changed"
+description = "Denies the webview_fullscreen_changed command without any pre-configured scope."
+commands.deny = ["webview_fullscreen_changed"]

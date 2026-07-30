@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>YouTube Desktop</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #0f0f0f;
+    overflow: hidden;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  .titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    background: #181818;
+    color: #eee;
+    user-select: none;
+    box-sizing: border-box;
+    border-bottom: 1px solid #2a2a2a;
+    z-index: 1000;
+  }
+  .titlebar-left, .titlebar-right, .nav {
+    display: flex;
+    align-items: center;
+  }
+  .titlebar-left, .titlebar-right {
+    flex: 0 0 auto;
+  }
+  .titlebar-left {
+    padding: 0 4px;
+    gap: 2px;
+    max-width: 42vw;
+    overflow: hidden;
+  }
+  .titlebar-center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(32vw, 560px);
+    height: 40px;
+    transform: translateX(-50%);
+    color: #b8b8b8;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .025em;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .titlebar-center span {
+    overflow: hidden;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .titlebar-right {
+    gap: 2px;
+    padding-right: 4px;
+    margin-left: auto;
+  }
+  .nav button, .newtab, .winctrls button, .profile-add {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+  }
+  .nav button:hover, .newtab:hover, .winctrls button:hover, .profile-add:hover {
+    background: #2f2f2f;
+  }
+  .tabs {
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
+    max-width: 620px;
+    overflow-x: auto;
+    height: 100%;
+    scrollbar-width: none;
+  }
+  .profile-switcher {
+    max-width: 120px;
+    height: 28px;
+    margin: 0 3px 0 5px;
+    padding: 0 7px;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    background: #252525;
+    color: #ddd;
+    font: 12px -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    height: 32px;
+    margin: 0 2px;
+    border-radius: 6px;
+    background: transparent;
+    color: #bbb;
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+    max-width: 160px;
+  }
+  .tab span.label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tab:hover { background: #2a2a2a; }
+  .tab.active { background: #3a3a3a; color: #fff; }
+  .tab-close {
+    opacity: 0.6;
+    padding: 0 2px;
+  }
+  .tab-close:hover { opacity: 1; }
+  .newtab {
+    flex-shrink: 0;
+    margin: 0 4px;
+  }
+  .tab-strip {
+    display: flex;
+    align-items: center;
+    max-width: min(620px, 32vw);
+    height: 100%;
+  }
+  .icon-button, .profile-add {
+    display: inline-grid;
+    place-items: center;
+  }
+  .icon-button svg, .profile-add svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .yt-controls {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding-left: 5px;
+    border-left: 1px solid #2a2a2a;
+  }
+  .yt-controls-panel {
+    display: flex;
+    align-items: center;
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: width 160ms ease, opacity 120ms ease;
+  }
+  .yt-controls:hover .yt-controls-panel,
+  .yt-controls:focus-within .yt-controls-panel {
+    width: 200px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .yt-controls-toggle { flex: 0 0 auto; }
+  .profile-controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 4px;
+    padding-left: 6px;
+    border-left: 1px solid #2a2a2a;
+  }
+  .profile-controls .profile-switcher { margin: 0; }
+  #network-status {
+    width: 8px;
+    height: 8px;
+    margin: 0 8px 0 3px;
+    border-radius: 50%;
+    background: #4caf50;
+    flex-shrink: 0;
+  }
+  #network-status.offline { background: #f44336; }
+  .winctrls {
+    display: flex;
+    flex-shrink: 0;
+  }
+  .winctrls button {
+    border-radius: 0;
+    width: 44px;
+    height: 40px;
+  }
+  #close:hover {
+    background: #e81123;
+    color: #fff;
+  }
+  body.titlebar-hidden .titlebar {
+    transform: translateY(-100%);
+  }
+  body.titlebar-hidden .titlebar {
+    transition: transform 180ms ease, opacity 180ms ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+  body:not(.titlebar-hidden):not(.player-fullscreen) .titlebar {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  body.player-fullscreen .titlebar {
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-left">
+      <div class="nav">
+        <button class="icon-button" id="back" title="Back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></button>
+        <button class="icon-button" id="fwd" title="Forward" aria-label="Forward"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button class="icon-button" id="reload" title="Reload" aria-label="Reload"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0 2 5.3M20 4v7h-7"/></svg></button>
+      </div>
+      <div class="tab-strip">
+        <div class="tabs" id="tabs"></div>
+        <button class="newtab icon-button" id="newtab" title="New Tab" aria-label="New Tab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </div>
+    <div class="titlebar-center" data-tauri-drag-region>
+      <span id="active-title">YouTube</span>
+    </div>
+    <div class="titlebar-right">
+      <div class="yt-controls" aria-label="Viewing controls">
+        <div class="yt-controls-panel">
+          <button class="newtab icon-button" id="queue" title="Show queue" aria-label="Show queue"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+          <button class="newtab icon-button" id="clean-view" title="Clean view" aria-label="Clean view"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+          <button class="newtab icon-button" id="theater" title="Theater mode (Ctrl+Alt+T)" aria-label="Theater mode"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M7 18v2M17 18h4"/></svg></button>
+          <button class="newtab icon-button" id="fullscreen" title="Fullscreen (F11)" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
+          <button class="newtab icon-button" id="downloads" title="Downloads" aria-label="Downloads"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></button>
+        </div>
+        <button class="newtab icon-button yt-controls-toggle" title="Viewing controls" aria-label="Viewing controls"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+      <span id="network-status" title="Online"></span>
+      <div class="profile-controls">
+        <select id="profile" class="profile-switcher" title="YouTube profile"></select>
+        <button class="profile-add" id="profile-add" title="Create profile" aria-label="Create profile"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </div>
+    <div class="winctrls">
+      <button class="icon-button" id="min" title="Minimize" aria-label="Minimize"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+      <button class="icon-button" id="max" title="Maximize" aria-label="Maximize"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>
+      <button class="icon-button" id="close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </div>
+  </div>
+
+  <script>
+    const { invoke } = window.__TAURI__.core;
+    const { listen } = window.__TAURI__.event;
+
+    let tabs = [];
+    let active = null;
+    let titlebarHidden = false;
+    let windowFullscreen = false;
+    let contentFullscreen = false;
+    const titlebar = document.querySelector('.titlebar');
+
+    function applyTitlebarHidden(hidden) {
+      titlebarHidden = hidden;
+      document.body.classList.toggle('titlebar-hidden', hidden);
+      if (titlebar) {
+        titlebar.style.pointerEvents = hidden ? 'none' : 'auto';
+      }
+    }
+
+    function syncFullscreenTitlebar() {
+      const fullscreen = windowFullscreen || contentFullscreen;
+      document.body.classList.toggle('window-fullscreen', fullscreen);
+    }
+
+    function render() {
+      const el = document.getElementById('tabs');
+      const activeTab = tabs.find((tab) => tab.label === active);
+      const activeTitle = document.getElementById('active-title');
+      const title = activeTab?.title || 'YouTube';
+      activeTitle.textContent = title;
+      activeTitle.title = title;
+      el.innerHTML = '';
+      for (const t of tabs) {
+        const div = document.createElement('div');
+        div.className = 'tab' + (t.label === active ? ' active' : '');
+        div.onclick = () => invoke('tab_switch', { label: t.label });
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = t.title || 'YouTube';
+        div.appendChild(label);
+
+        const x = document.createElement('span');
+        x.className = 'tab-close';
+        x.textContent = '×';
+        x.onclick = (e) => {
+          e.stopPropagation();
+          invoke('tab_close', { label: t.label });
+        };
+        div.appendChild(x);
+
+        el.appendChild(div);
+      }
+    }
+
+    listen('tabs-updated', (event) => {
+      tabs = event.payload.tabs;
+      active = event.payload.active;
+      render();
+    });
+
+    function renderProfiles(payload) {
+      const select = document.getElementById('profile');
+      select.replaceChildren();
+      for (const profile of payload.profiles || []) {
+        const option = document.createElement('option');
+        option.value = profile;
+        option.textContent = profile;
+        option.selected = profile === payload.active;
+        select.appendChild(option);
+      }
+    }
+
+    listen('profiles-updated', (event) => renderProfiles(event.payload));
+    invoke('profile_list').then(renderProfiles).catch(() => {});
+
+    listen('queue-updated', (event) => {
+      const count = Array.isArray(event.payload) ? event.payload.length : 0;
+      document.getElementById('queue').title = count ? `Show queue (${count})` : 'Show queue';
+    });
+
+    listen('window-fullscreen-changed', (event) => {
+      windowFullscreen = !!event.payload?.fullscreen;
+      // A full-window app hides the bar until the cursor reaches the top edge.
+      syncFullscreenTitlebar();
+    });
+
+    listen('content-fullscreen-changed', (event) => {
+      contentFullscreen = !!event.payload?.fullscreen;
+      syncFullscreenTitlebar();
+    });
+
+    listen('player-fullscreen-changed', (event) => {
+      const fullscreen = !!event.payload?.fullscreen;
+      document.body.classList.toggle('player-fullscreen', fullscreen);
+      if (fullscreen) {
+        // Hide immediately; the backend event that follows also synchronises layout.
+        applyTitlebarHidden(true);
+      }
+    });
+
+    listen('titlebar-visibility-changed', (event) => {
+      applyTitlebarHidden(!!event.payload?.fullscreen);
+    });
+
+    // The titlebar is a separate parent webview from the YouTube tab. Handle F11
+    // here as well as in the injected tab script so the focused surface always
+    // owns the shortcut, without relying on an OS-global registration.
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'F11') {
+        event.preventDefault();
+        event.stopPropagation();
+        invoke('win_toggle_fullscreen').catch(() => {});
+      }
+    }, true);
+
+    document.getElementById('back').onclick = () => invoke('tab_back');
+    document.getElementById('fwd').onclick = () => invoke('tab_forward');
+    document.getElementById('reload').onclick = () => invoke('tab_reload');
+    document.getElementById('newtab').onclick = () => invoke('tab_new');
+    document.getElementById('profile').onchange = (event) => {
+      invoke('profile_select', { profile: event.target.value }).catch(() => invoke('profile_list').then(renderProfiles));
+    };
+    document.getElementById('profile-add').onclick = () => {
+      const profile = window.prompt('Name the new profile (for example, Work or Study):');
+      if (profile) invoke('profile_create', { profile }).catch((error) => window.alert(String(error)));
+    };
+    document.getElementById('queue').onclick = () => invoke('queue_toggle');
+    document.getElementById('clean-view').onclick = () => invoke('clean_view_toggle');
+    document.getElementById('theater').onclick = () => invoke('tab_toggle_theater');
+    document.getElementById('fullscreen').onclick = () => invoke('win_toggle_fullscreen');
+    document.getElementById('downloads').onclick = () => invoke('tab_navigate', { url: 'https://www.youtube.com/feed/downloads' });
+
+    function updateNetworkStatus() {
+      const online = navigator.onLine;
+      const indicator = document.getElementById('network-status');
+      indicator.classList.toggle('offline', !online);
+      indicator.title = online ? 'Online' : 'Offline — downloaded videos may still be available';
+    }
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+    updateNetworkStatus();
+    document.getElementById('min').onclick = () => invoke('win_minimize');
+    document.getElementById('max').onclick = () => invoke('win_toggle_maximize');
+    document.getElementById('close').onclick = () => invoke('win_close');
+
+    document.addEventListener('keydown', (event) => {
+      if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 't') {
+        event.preventDefault();
+        if (!event.repeat) invoke('tab_toggle_theater');
+      }
+    });
+
+    // The very first tabs_list() call can race the backend's own startup tab_new()
+    // call in setup(), which runs asynchronously relative to this page loading —
+    // so retry briefly until we actually see a tab (or give up after ~2s).
+    function loadTabs(attempt) {
+      invoke('tabs_list').then((list) => {
+        tabs = list.tabs;
+        active = list.active;
+        render();
+        if (tabs.length === 0 && attempt < 20) {
+          setTimeout(() => loadTabs(attempt + 1), 100);
+        }
+      });
+    }
+    loadTabs(0);
+  </script>
+</body>
+</html>

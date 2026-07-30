@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-show-titlebar"
+description = "Enables the show_titlebar command without any pre-configured scope."
+commands.allow = ["show_titlebar"]
+
+[[permission]]
+identifier = "deny-show-titlebar"
+description = "Denies the show_titlebar command without any pre-configured scope."
+commands.deny = ["show_titlebar"]

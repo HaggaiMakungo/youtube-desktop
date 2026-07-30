@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-queue-play-next"
+description = "Enables the queue_play_next command without any pre-configured scope."
+commands.allow = ["queue_play_next"]
+
+[[permission]]
+identifier = "deny-queue-play-next"
+description = "Denies the queue_play_next command without any pre-configured scope."
+commands.deny = ["queue_play_next"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-profile-select"
+description = "Enables the profile_select command without any pre-configured scope."
+commands.allow = ["profile_select"]
+
+[[permission]]
+identifier = "deny-profile-select"
+description = "Denies the profile_select command without any pre-configured scope."
+commands.deny = ["profile_select"]
