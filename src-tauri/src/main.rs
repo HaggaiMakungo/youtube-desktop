@@ -9,7 +9,7 @@ use tauri::{
     Emitter,
     Manager,
     menu::{Menu, MenuItem},
-    tray::{TrayIconBuilder, TrayIconEvent},
+    tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
     image::Image,
     webview::WebviewBuilder,
     LogicalPosition, LogicalSize, WebviewUrl,
@@ -1392,7 +1392,12 @@ fn main() {
                 .menu(&menu)
                 .tooltip("YouTube Desktop")
                 .on_tray_icon_event(|tray, event| {
-                    if let TrayIconEvent::Click { .. } = event {
+                    // Only left-click activates the window. Right-click also fires
+                    // Click here (in addition to natively opening the attached
+                    // menu) — stealing focus for it made the OS treat the popup as
+                    // deactivated and dismiss it immediately, so it only ever
+                    // flashed on screen instead of staying open.
+                    if let TrayIconEvent::Click { button: MouseButton::Left, .. } = event {
                         let app = tray.app_handle();
                         if let Some(w) = app.get_window("main") {
                             let _ = w.show();
