@@ -1008,13 +1008,19 @@ fn profile_list(state: tauri::State<TabsState>) -> ProfilesPayload {
     profiles_payload(&state)
 }
 
+// async for the same reason as tab_new: activate_profile() can create tabs,
+// which calls add_child() — that blocks waiting for the main thread to build
+// the webview. Tauri can dispatch a sync command handler onto the main thread
+// itself, and calling add_child() from there deadlocks forever (the window
+// then just sits there blank, since the event loop that would render anything
+// is the same thread stuck waiting on itself).
 #[tauri::command]
-fn profile_select(app: tauri::AppHandle, state: tauri::State<TabsState>, profile: String) -> Result<(), String> {
+async fn profile_select(app: tauri::AppHandle, state: tauri::State<'_, TabsState>, profile: String) -> Result<(), String> {
     activate_profile(&app, &state, &profile)
 }
 
 #[tauri::command]
-fn profile_create(app: tauri::AppHandle, state: tauri::State<TabsState>, profile: String) -> Result<(), String> {
+async fn profile_create(app: tauri::AppHandle, state: tauri::State<'_, TabsState>, profile: String) -> Result<(), String> {
     let profile = profile.trim();
     if profile.is_empty() || profile.len() > 32 || !profile.chars().all(|character| character.is_ascii_alphanumeric() || character == ' ' || character == '-' || character == '_') {
         return Err("Use 1–32 letters, numbers, spaces, hyphens, or underscores.".into());
